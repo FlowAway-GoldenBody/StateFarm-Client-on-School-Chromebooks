@@ -5,7 +5,6 @@ import { Elysia, t } from 'elysia';
 
 import cacheStore from './stores/CacheStore.ts';
 import sessionStore from './stores/SessionStore.ts';
-
 const appDir = path.join(import.meta.dirname, 'app');
 
 const app = new Elysia({ serve: { maxRequestBodySize: (2 * 1024 * 1024) + 4096 } }); // 2MB + 4KB for metadata
@@ -17,25 +16,7 @@ app.get('/', async ({ cookie: { shimmy } }) => {
     const getScripts = fs.readFileSync(path.join(appDir, 'getScripts.js'), 'utf8');
 
     // credit: op7
-    const socketFix = `(() => {
-        const originalWebSocket = window.WebSocket;
-
-        window.WebSocket = function (url, protocols) {
-            if (typeof url === "string") {
-                url = url.replace(location.host, "eggisthenewblack.com");
-                const baseDomain = location.hostname.split('.').slice(-2).join('.');
-                url = url.replace(baseDomain, "eggisthenewblack.com");
-            };
-
-            return protocols ? new originalWebSocket(url, protocols) : new originalWebSocket(url);
-        };
-
-        window.WebSocket.prototype = originalWebSocket.prototype;
-        window.WebSocket.CONNECTING = originalWebSocket.CONNECTING;
-        window.WebSocket.OPEN = originalWebSocket.OPEN;
-        window.WebSocket.CLOSING = originalWebSocket.CLOSING;
-        window.WebSocket.CLOSED = originalWebSocket.CLOSED;
-    })();`;
+    const socketFix = ``;
 
     let gmInject = fs.readFileSync(path.join(import.meta.dirname, 'util', 'gm.js'), 'utf8');
 

@@ -1,17 +1,17 @@
 <div align='center'>
-    <h1>shim</h1>
-    <h3>by yolkbot</h3>
+    <h1>shim 2.0</h1>
+    <h3>by Yolkbot and Flowaway-Goldenbody</h3>
 </div>
 
 <br><br>
 
 ## about
-shim is a copy of shell shockers that proxies all requests and allows for userscript injection. it works on any device, even chromebooks with locked-down extensions and devtools disabled.
+shim is a copy of shell shockers that proxies all requests (** including websockets not just using an alt link of shell!) and allows for userscript injection. it works on any device, even chromebooks with locked-down extensions and devtools disabled.
 
-shim functions as a copy of normal shell shockers, but when you visit the `/inject` page, you can inject userscripts that will run on the main game page. shim supports all tampermonkey userscripts to the best of its ability.
+shim functions as a copy of normal shell shockers, but when you visit the `/inject` page, you can inject userscripts that will run on the main game page. shim supports all tampermonkey userscripts to the best of its ability. (** it didnt support all userscript apis)
 
-shim succeeds [crackedshell](https://github.com/VillainsRule/CrackedShell) with the notable design difference being silence - shim silently injects all scripts and does not disclose that scripts are injected via the URL. the only way to know that a website is shim and not normal shell is the presence of the `/inject` page. it also allows for scripts to be fetched from any URL, which is a nice perk following unsavory takedowns.
-
+## From Flowaway-Goldenbody:
+I also fixed the broken websocket patch for shell shockers. onlypuppy7 wrote the original one but its not working at my end.
 <br>
 
 ## setup
@@ -19,7 +19,10 @@ shim succeeds [crackedshell](https://github.com/VillainsRule/CrackedShell) with 
 2. clone this repo
 3. run `bun install`
 4. run `bun .`
-5. play at http://localhost:6602
+5. install "node js" for ws proxy. (node js is together plz dont install node and js)
+6. run node src/wsproxy.js
+7. configure statefarmclient at http://localhost:6602/inject
+8. play at http://localhost:6602/
 
 <br><br>
-<h5 align='center'>made with ❤️</h5>
+<h5 align='center'>Special thx for villainsrule for the shim repo</h5>
