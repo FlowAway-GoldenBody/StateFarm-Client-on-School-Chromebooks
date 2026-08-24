@@ -3,6 +3,7 @@ import { createProxyServer } from "http-proxy-3";
 
 const PORT = 3000;
 const TARGET = "wss://shellshock.io";
+
 const ALLOWED_PREFIXES = ["/services/", "/matchmaker/", "/game/"];
 
 const normalizeHost = (host = "") => {
@@ -13,30 +14,18 @@ const normalizeHost = (host = "") => {
 const getUpstreamTarget = (host = "") => {
   const cleanedHost = normalizeHost(host);
 
-  if (!cleanedHost || cleanedHost === "localhost") {
+  if (!cleanedHost) {
     return TARGET;
-  }
-
-  if (cleanedHost.endsWith(".localhost")) {
-    const subdomain = cleanedHost.replace(/\.localhost$/, "");
-    if (subdomain && subdomain !== "localhost") {
-      return `wss://${subdomain}.shellshock.io`;
-    }
   }
 
   return TARGET;
 };
 
-const isAllowedRoute = (url, host) => {
+const isAllowedRoute = (url) => {
   const pathname = url.pathname || "/";
-  const cleanedHost = normalizeHost(host);
-  const isLocalhostHost =
-    cleanedHost === "localhost" ||
-    cleanedHost.endsWith(".localhost");
 
-  return (
-    ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
-    (isLocalhostHost && (pathname === "/game" || pathname.startsWith("/game/")))
+  return ALLOWED_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
   );
 };
 
@@ -56,7 +45,7 @@ const proxy = createProxyServer({
 });
 
 proxy.on("proxyReqWs", (proxyReq, req) => {
-  const target = new URL(getUpstreamTarget(req.headers.host || ""));
+  const target = new URL(TARGET);
   const origin = req.headers.origin || `https://${target.host}`;
 
   proxyReq.setHeader("Origin", origin);
@@ -91,9 +80,18 @@ const server = http.createServer((req, res) => {
 });
 
 server.on("upgrade", (req, socket, head) => {
-  const url = new URL(req.url || "/", "http://localhost");
-  const upstreamTarget = getUpstreamTarget(req.headers.host || "");
   ensureSocketCompatibility(socket);
+
+  // Change 6602 to 3000 anywhere it appears in the incoming URL.
+  if (req.url) {
+    req.url = req.url.replace(/6602/g, "3000");
+  }
+
+  const url = new URL(req.url || "/", "http://proxy");
+
+  const upstreamTarget = getUpstreamTarget(
+    req.headers.host || ""
+  );
 
   console.log("\n========== WS UPGRADE ==========");
   console.log("URL:", req.url);
@@ -102,10 +100,12 @@ server.on("upgrade", (req, socket, head) => {
   console.log("Connection:", req.headers.connection);
   console.log("Upgrade:", req.headers.upgrade);
 
-  if (!isAllowedRoute(url, req.headers.host || "")) {
-    console.log("❌ Rejecting:", url.pathname, "host:", req.headers.host);
+  if (!isAllowedRoute(url)) {
+    console.log("❌ Rejecting:", url.pathname);
+
     socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
     socket.destroy();
+
     return;
   }
 
@@ -121,6 +121,6 @@ server.on("upgrade", (req, socket, head) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`WS proxy listening on ws://localhost:${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`WS proxy listening on port ${PORT}`);
 });
