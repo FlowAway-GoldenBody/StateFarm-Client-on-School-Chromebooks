@@ -2,40 +2,13 @@ import http from "node:http";
 import { createProxyServer } from "http-proxy-3";
 
 const PORT = 3000;
-const TARGET = "wss://shellshock.io";
+const DEFAULT_TARGET = "wss://shellshock.io";
 
-const ALLOWED_PREFIXES = ["/services/", "/matchmaker/", "/game/"];
-
-const normalizeHost = (host = "") => {
-  if (!host) return "";
-  return host.split(":")[0];
-};
-
-const getUpstreamTarget = (host = "") => {
-  const cleanedHost = normalizeHost(host);
-
-  if (!cleanedHost) {
-    return TARGET;
-  }
-
-  return TARGET;
-};
-
-const isAllowedRoute = (url) => {
-  const pathname = url.pathname || "/";
-
-  return ALLOWED_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix)
-  );
-};
-
-const ensureSocketCompatibility = (socket) => {
-  if (socket && typeof socket.destroySoon !== "function") {
-    socket.destroySoon = () => socket.destroy();
-  }
-
-  return socket;
-};
+const ALLOWED_PREFIXES = [
+  "/services/",
+  "/matchmaker/",
+  "/game/",
+];
 
 const proxy = createProxyServer({
   ws: true,
@@ -43,17 +16,23 @@ const proxy = createProxyServer({
   secure: true,
   xfwd: true,
 });
+const getUpstreamTarget = (region) => {
+  if (!region) {
+    return DEFAULT_TARGET;
+  }
+
+  if (!/^egs-static-live-[a-z0-9-]+$/i.test(region)) {
+    console.log("❌ Invalid EGS region:", region);
+    return DEFAULT_TARGET;
+  }
+
+  return `wss://${region}.shellshock.io`;
+};
 
 proxy.on("proxyReqWs", (proxyReq, req) => {
-  const target = new URL(TARGET);
-  const origin = req.headers.origin || `https://${target.host}`;
-
-  proxyReq.setHeader("Origin", origin);
-  proxyReq.setHeader("Host", target.host);
-
   console.log("→ UPSTREAM WS REQUEST");
+  console.log("  client host:", req.headers.host);
   console.log("  path:", req.url);
-  console.log("  origin:", origin);
   console.log("  host:", proxyReq.getHeader("host"));
 });
 
@@ -69,7 +48,6 @@ proxy.on("error", (err, req, socket) => {
   console.error("❌ PROXY ERROR:", err.message);
 
   if (socket && !socket.destroyed) {
-    socket.write("HTTP/1.1 502 Bad Gateway\r\n\r\n");
     socket.destroy();
   }
 });
@@ -80,47 +58,74 @@ const server = http.createServer((req, res) => {
 });
 
 server.on("upgrade", (req, socket, head) => {
-  ensureSocketCompatibility(socket);
-
-  // Change 6602 to 3000 anywhere it appears in the incoming URL.
-  if (req.url) {
-    req.url = req.url.replace(/6602/g, "3000");
-  }
-
-  const url = new URL(req.url || "/", "http://proxy");
-
-  const upstreamTarget = getUpstreamTarget(
-    req.headers.host || ""
+  const url = new URL(
+    req.url || "/",
+    "http://localhost"
   );
 
   console.log("\n========== WS UPGRADE ==========");
-  console.log("URL:", req.url);
   console.log("Host:", req.headers.host);
+  console.log("URL:", req.url);
   console.log("Origin:", req.headers.origin);
-  console.log("Connection:", req.headers.connection);
-  console.log("Upgrade:", req.headers.upgrade);
 
-  if (!isAllowedRoute(url)) {
+  const allowed = ALLOWED_PREFIXES.some((prefix) =>
+    url.pathname.startsWith(prefix)
+  );
+
+  if (!allowed) {
     console.log("❌ Rejecting:", url.pathname);
 
-    socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
-    socket.destroy();
+    socket.write(
+      "HTTP/1.1 403 Forbidden\r\n" +
+      "Connection: close\r\n" +
+      "\r\n"
+    );
 
+    socket.destroy();
     return;
   }
 
-  console.log("→ Proxying to:", upstreamTarget);
-  console.log("→ Path:", req.url);
+  // Extract the region added by EggPatcher.
+  const region = url.searchParams.get("egs_region");
+
+  console.log(
+    "EGS region:",
+    region || "(none)"
+  );
+
+  // Pick the actual upstream based on the region.
+  const upstreamTarget = getUpstreamTarget(region);
+
+  // Remove our internal parameter before forwarding.
+  url.searchParams.delete("egs_region");
+
+  // Rebuild the original WebSocket path.
+  req.url =
+    url.pathname +
+    (url.searchParams.toString()
+      ? `?${url.searchParams.toString()}`
+      : "");
+
+  console.log(
+    "→ Upstream target:",
+    upstreamTarget
+  );
+
+  console.log(
+    "→ Upstream path:",
+    req.url
+  );
 
   proxy.ws(req, socket, head, {
     target: upstreamTarget,
     changeOrigin: true,
     secure: true,
-    xfwd: true,
     ws: true,
   });
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`WS proxy listening on port ${PORT}`);
+  console.log(
+    `WS proxy listening on ws://0.0.0.0:${PORT}`
+  );
 });

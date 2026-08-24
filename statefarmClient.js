@@ -139,32 +139,35 @@ console.log(
       //   ws://egs-static-live-useast-1u265wed.localhost/game/
       // JSON Kapalka (egg):
       //   wss://egs-static-live-useast-1u265wed.shellshock.io/game/
-      const egsMatch = t.match(
-        /^ws:\/\/(egs-static-live-[^.]+)\.localhost(\/.*)?$/i
-      );
+const CODESPACE_WS_HOST =
+  "curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev";
 
-      if (egsMatch) {
-        const regionHost = egsMatch[1];
-        const path = egsMatch[2] || "/";
+const egsMatch = t.match(
+  /^wss?:\/\/(egs-static-live-[^.]+)\.github\.dev(\/.*)?$/i
+);
 
-        t = `ws://${regionHost}.localhost:3000${path}`;
+if (egsMatch) {
+  const regionHost = egsMatch[1];
+  const path = egsMatch[2] || "/";
 
-        console.log(
-          `%c[EggPatcher] %cEGS region rewritten`,
-          "color: magenta; font-weight: bold",
-          "color: white",
-          regionHost
-        );
-      }
+  const separator = path.includes("?") ? "&" : "?";
+
+  t =
+    `wss://${CODESPACE_WS_HOST}${path}` +
+    `${separator}egs_region=${encodeURIComponent(regionHost)}`;
+
+  console.log("[EggPatcher] EGS region:", regionHost);
+  console.log("[EggPatcher] Connecting through:", t);
+}
 
       // services
       if (t.includes("ser")) {
-        t = "ws://localhost:3000/services/";
+        t = "wss://curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev/services/";
       }
 
       // matchmaker
       if (t.includes("matchmaker")) {
-        t = "ws://localhost:3000/matchmaker/";
+        t = "wss://curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev/matchmaker/";
       }
 
       console.log(
