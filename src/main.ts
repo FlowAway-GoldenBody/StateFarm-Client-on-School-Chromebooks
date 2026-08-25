@@ -16,7 +16,7 @@ app.get('/', async ({ cookie: { shimmy } }) => {
     const getScripts = fs.readFileSync(path.join(appDir, 'getScripts.js'), 'utf8');
 
     // credit: op7
-    const socketFix = ``;
+    const socketFix = fs.readFileSync(path.join(import.meta.dirname, 'util', 'socketFix.js'), 'utf8');
 
     let gmInject = fs.readFileSync(path.join(import.meta.dirname, 'util', 'gm.js'), 'utf8');
 

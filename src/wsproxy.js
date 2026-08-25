@@ -22,7 +22,7 @@ const getUpstreamTarget = (region) => {
   }
 
   if (!/^egs-static-live-[a-z0-9-]+$/i.test(region)) {
-    console.log("❌ Invalid EGS region:", region);
+    console.log("Invalid EGS region:", region);
     return DEFAULT_TARGET;
   }
 
@@ -37,15 +37,15 @@ proxy.on("proxyReqWs", (proxyReq, req) => {
 });
 
 proxy.on("open", () => {
-  console.log("← UPSTREAM WS OPEN");
+  console.log("UPSTREAM WS OPEN");
 });
 
 proxy.on("close", () => {
-  console.log("← UPSTREAM WS CLOSE");
+  console.log("UPSTREAM WS CLOSE");
 });
 
 proxy.on("error", (err, req, socket) => {
-  console.error("❌ PROXY ERROR:", err.message);
+  console.error("PROXY ERROR:", err.message);
 
   if (socket && !socket.destroyed) {
     socket.destroy();
@@ -63,7 +63,7 @@ server.on("upgrade", (req, socket, head) => {
     "http://localhost"
   );
 
-  console.log("\n========== WS UPGRADE ==========");
+  console.log("WS UPGRADE");
   console.log("Host:", req.headers.host);
   console.log("URL:", req.url);
   console.log("Origin:", req.headers.origin);
@@ -73,7 +73,7 @@ server.on("upgrade", (req, socket, head) => {
   );
 
   if (!allowed) {
-    console.log("❌ Rejecting:", url.pathname);
+    console.log("Rejecting:", url.pathname);
 
     socket.write(
       "HTTP/1.1 403 Forbidden\r\n" +
@@ -85,7 +85,7 @@ server.on("upgrade", (req, socket, head) => {
     return;
   }
 
-  // Extract the region added by EggPatcher.
+  // extract the region added by eggpatcher.
   const region = url.searchParams.get("egs_region");
 
   console.log(
@@ -93,13 +93,13 @@ server.on("upgrade", (req, socket, head) => {
     region || "(none)"
   );
 
-  // Pick the actual upstream based on the region.
+  // pick the actual upstream based on the region.
   const upstreamTarget = getUpstreamTarget(region);
 
-  // Remove our internal parameter before forwarding.
+  // remove our internal parameter before forwarding.
   url.searchParams.delete("egs_region");
 
-  // Rebuild the original WebSocket path.
+  // rebuild the original ws path.
   req.url =
     url.pathname +
     (url.searchParams.toString()
@@ -107,12 +107,12 @@ server.on("upgrade", (req, socket, head) => {
       : "");
 
   console.log(
-    "→ Upstream target:",
+    "Upstream target:",
     upstreamTarget
   );
 
   console.log(
-    "→ Upstream path:",
+    "Upstream path:",
     req.url
   );
 
@@ -126,6 +126,6 @@ server.on("upgrade", (req, socket, head) => {
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(
-    `WS proxy listening on ws://0.0.0.0:${PORT}`
+    `ws proxy on ws://0.0.0.0:${PORT}`
   );
 });
