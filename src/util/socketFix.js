@@ -34,15 +34,15 @@ if (cftunnelEdition) {
 
         if (egsMatch && t.includes("egs-static-live")) {
           const urlObj = new URL(t);
-          const regionHost = urlObj.searchParams.get("server") ||
+          const regionHost = urlObj.searchParams.get("egs_region") ||
             (egsMatch[1] && egsMatch[1] !== "sfc" ? egsMatch[1] : "egs-static-live-useast");
           const path = urlObj.pathname || "/";
           const query = new URLSearchParams(urlObj.search);
-          query.delete("server");
+          query.delete("egs_region");
           const pathWithQuery = `${path}${query.toString() ? `?${query.toString()}` : ""}`;
           const separator = pathWithQuery.includes("?") ? "&" : "?";
 
-          t = `wss://sfcws.mathvariables.xyz${pathWithQuery}${separator}server=${encodeURIComponent(regionHost)}`;
+          t = `wss://sfcws.mathvariables.xyz${pathWithQuery}${separator}egs_region=${encodeURIComponent(regionHost)}`;
 
           console.log(`%c[EggPatcher] %cEGS region:`, "color: magenta; font-weight: bold", "color: white", regionHost);
 
@@ -203,7 +203,7 @@ else if (codespaceEdition) {
 
           const separator = path.includes("?") ? "&" : "?";
 
-          t = `ws://localhost:3000${path}${separator}server=${encodeURIComponent(regionHost)}`;
+          t = `ws://localhost:3000${path}${separator}egs_region=${encodeURIComponent(regionHost)}`;
 
           console.log(`%c[EggPatcher] %cEGS region:`, "color: magenta; font-weight: bold", "color: white", regionHost);
 
