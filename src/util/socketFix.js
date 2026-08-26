@@ -1,3 +1,4 @@
+(() => {
 // config
 let codespaceEdition = false;
 let cftunnelEdition = true;
@@ -254,6 +255,7 @@ else if (codespaceEdition) {
     });
   })();
 }
+})();
 
 
 
@@ -8813,5 +8815,4 @@ z-index: 999999;
         };
     }, 30000);
 })();
-debugger;
 // log("StateFarm: after function", attemptedInjection);
