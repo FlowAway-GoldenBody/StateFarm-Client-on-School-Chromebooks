@@ -1,34 +1,8 @@
 // config
 let codespaceEdition = false;
 let cftunnelEdition = false;
-if (window.location.hostname === 'sfc.mathvariables.xyz') cftunnelEdition = true;
+if (window.location.hostname === "sfc.mathvariables.xyz") cftunnelEdition = true;
 const CODESPACE_WS_HOST = "curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev";
-
-// helper ai written function to get the root domain of the current page
-function getRootDomain() {
-  const hostname = window.location.hostname;
-  const parts = hostname.split('.');
-  
-  // If it's localhost or an IP address, return it as-is
-  if (parts.length <= 1 || /^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
-    return hostname;
-  }
-
-  // Iterate backwards to find the shortest valid domain the browser accepts cookies on
-  for (let i = parts.length - 2; i >= 0; i--) {
-    const domainCandidate = parts.slice(i).join('.');
-    document.cookie = `testcookie=1; domain=${domainCandidate}; path=/`;
-    
-    // Check if the cookie was successfully written
-    if (document.cookie.indexOf('testcookie=1') !== -1) {
-      // Clean up the test cookie
-      document.cookie = `testcookie=; domain=${domainCandidate}; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-      return domainCandidate;
-    }
-  }
-  
-  return hostname;
-}
 
 // logic
 if (cftunnelEdition) {
@@ -56,11 +30,18 @@ if (cftunnelEdition) {
         // JSON Kapalka (egg):
         //   wss://egs-static-live-useast-1u265wed.shellshock.io/game/
 
-        const egsMatch = t.includes('egs-static-live-');
+        const egsMatch = t.match(/^ws:\/\/(egs-static-live-[^.]+)\.mathvariables\.xyz(\/.*)?$/i);
 
         if (egsMatch) {
-          let host = getRootDomain();
-          t = t.replace(host, 'sfcws.mathvariables.xyz');
+          const regionHost = egsMatch[1];
+          const path = egsMatch[2] || "/";
+
+          const separator = path.includes("?") ? "&" : "?";
+
+          t = `wss://sfcws.mathvariables.xyz${path}${separator}server=${encodeURIComponent(regionHost)}`;
+
+          console.log(`%c[EggPatcher] %cEGS region:`, "color: magenta; font-weight: bold", "color: white", regionHost);
+
           console.log(`%c[EggPatcher] %cConnecting through:`, "color: magenta; font-weight: bold", "color: white", t);
         }
 
