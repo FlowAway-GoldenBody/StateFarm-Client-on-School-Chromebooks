@@ -1,6 +1,6 @@
 // config
 let codespaceEdition = false;
-let cftunnelEdition = false;
+let cftunnelEdition = true;
 if (window.location.hostname === "sfc.mathvariables.xyz") cftunnelEdition = true;
 const CODESPACE_WS_HOST = "curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev";
 
@@ -32,7 +32,7 @@ if (cftunnelEdition) {
 
         const egsMatch = t.match(/^wss?:\/\/(?:(egs-static-live-[^.]+)|sfc)\.mathvariables\.xyz(\/.*)?$/i);
 
-        if (egsMatch) {
+        if (egsMatch && t.includes("egs-static-live")) {
           const urlObj = new URL(t);
           const regionHost = urlObj.searchParams.get("server") ||
             (egsMatch[1] && egsMatch[1] !== "sfc" ? egsMatch[1] : "egs-static-live-useast");
