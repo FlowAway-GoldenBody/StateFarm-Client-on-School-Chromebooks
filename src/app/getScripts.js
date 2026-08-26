@@ -1,3 +1,4 @@
+(() => {
     const DB_NAME = 'shim-db';
     const DB_STORE = 'files';
     const LS_KEY = 'shim-urls';
@@ -90,3 +91,4 @@
 
     window.loadShimScripts = loadShimScripts;
     window.pushToCookie = pushToCookie;
+})();
