@@ -30,15 +30,19 @@ if (cftunnelEdition) {
         // JSON Kapalka (egg):
         //   wss://egs-static-live-useast-1u265wed.shellshock.io/game/
 
-        const egsMatch = t.match(/^ws:\/\/(egs-static-live-[^.]+)\.mathvariables\.xyz(\/.*)?$/i);
+        const egsMatch = t.match(/^wss?:\/\/(?:(egs-static-live-[^.]+)|sfc)\.mathvariables\.xyz(\/.*)?$/i);
 
         if (egsMatch) {
-          const regionHost = egsMatch[1];
-          const path = egsMatch[2] || "/";
+          const urlObj = new URL(t);
+          const regionHost = urlObj.searchParams.get("server") ||
+            (egsMatch[1] && egsMatch[1] !== "sfc" ? egsMatch[1] : "egs-static-live-useast");
+          const path = urlObj.pathname || "/";
+          const query = new URLSearchParams(urlObj.search);
+          query.delete("server");
+          const pathWithQuery = `${path}${query.toString() ? `?${query.toString()}` : ""}`;
+          const separator = pathWithQuery.includes("?") ? "&" : "?";
 
-          const separator = path.includes("?") ? "&" : "?";
-
-          t = `wss://sfcws.mathvariables.xyz${path}${separator}server=${encodeURIComponent(regionHost)}`;
+          t = `wss://sfcws.mathvariables.xyz${pathWithQuery}${separator}server=${encodeURIComponent(regionHost)}`;
 
           console.log(`%c[EggPatcher] %cEGS region:`, "color: magenta; font-weight: bold", "color: white", regionHost);
 
