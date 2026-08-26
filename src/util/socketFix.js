@@ -16,7 +16,7 @@ if (cftunnelEdition) {
       constructor(url, protocols) {
         let t = String(url);
 
-        const c = window.top.origin.split("/")[2];
+        const c = window.origin.split("/")[2];
 
         // Original local-origin replacement
         if (t.includes(c)) {
@@ -102,7 +102,7 @@ else if (codespaceEdition) {
       constructor(url, protocols) {
         let t = String(url);
 
-        const c = window.top.origin.split("/")[2];
+        const c = window.origin.split("/")[2];
 
         if (t.includes(c)) {
           t = t.replace(c, window.location.host);
@@ -181,7 +181,7 @@ else if (codespaceEdition) {
       constructor(url, protocols) {
         let t = String(url);
 
-        const c = window.top.origin.split("/")[2];
+        const c = window.origin.split("/")[2];
 
         // Original local-origin replacement
         if (t.includes(c)) {
