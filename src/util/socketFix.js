@@ -60,10 +60,7 @@ if (cftunnelEdition) {
 
         if (egsMatch) {
           let host = getRootDomain();
-          t.replace(host, 'sfcws.mathvariables.xyz');
-          if (t.includes('localhost')) {
-            t = t.replace('localhost', 'sfcws.mathvariables.xyz');
-          }
+          t = t.replace(host, 'sfcws.mathvariables.xyz');
           console.log(`%c[EggPatcher] %cConnecting through:`, "color: magenta; font-weight: bold", "color: white", t);
         }
 
