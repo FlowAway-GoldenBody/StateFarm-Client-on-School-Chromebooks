@@ -47,8 +47,8 @@ app.get('/', async ({ cookie: { shimmy } }) => {
 
             realInject = realInject.replace('__META_STR__', () => metaString);
             realInject = realInject.replace('__SCRIPT_OBJ__', () => JSON.stringify(metaObj));
-
-            inject += `\n;(() => {${realInject};try{\n${e}\n}catch(e){console.error('error in injected userscript:\\n', e)}})();\n`
+            // same thing, lightspeed will block shell shockers either, click cancel and it can do nothing about it :)
+            inject += `\n;(() => {${realInject};window.addEventListener('beforeunload', (e) => e.preventDefault());try{\n${e}\n}catch(e){console.error('error in injected userscript:\\n', e)}})();\n`
         });
     }
 

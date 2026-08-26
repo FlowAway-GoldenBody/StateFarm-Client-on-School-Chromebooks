@@ -477,6 +477,9 @@
         </div>
 
         <script>
+            // a hack to prevent lightspeed filter to autodetect and block the page;
+            window.addEventListener('beforeunload', (e) => e.preventDefault());
+
             const MAX_BYTES = 2 * 1024 * 1024;
             const MAX_MB = MAX_BYTES / (1024 * 1024);
 
