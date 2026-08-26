@@ -33,7 +33,7 @@ if (cftunnelEdition) {
 
         const egsMatch = t.match(/^wss?:\/\/(?:(egs-static-live-[^.]+)|sfc)\.mathvariables\.xyz(\/.*)?$/i);
 
-        if (egsMatch && t.includes("egs-static-live")) {
+        if (egsMatch) {
           const urlObj = new URL(t);
           const regionHost = urlObj.searchParams.get("egs_region") ||
             (egsMatch[1] && egsMatch[1] !== "sfc" ? egsMatch[1] : "egs-static-live-useast");
