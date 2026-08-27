@@ -1,7 +1,7 @@
 (() => {
 // config
 let codespaceEdition = false;
-let cftunnelEdition = true;
+let cftunnelEdition = false;
 if (window.location.hostname === "sfc.mathvariables.xyz") cftunnelEdition = true;
 const CODESPACE_WS_HOST = "curly-halibut-q7gpj56p99wq36j5-3000.app.github.dev";
 
