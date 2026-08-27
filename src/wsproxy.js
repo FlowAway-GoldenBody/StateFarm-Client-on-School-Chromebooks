@@ -118,28 +118,28 @@ const logClientToServer = (chunk) => {
   const frame = getWebSocketFrameInfo(chunk);
   const summary = typeof frame.payload === "string" ? frame.payload : JSON.stringify(frame.payload);
 
-  console.log(
-    "[WS CLIENT -> SERVER]",
-    `opcode=${frame.opcode}`,
-    `len=${frame.length}`,
-    `masked=${frame.masked}`,
-    `fin=${frame.fin}`,
-    summary.slice(0, 220),
-  );
+  // console.log(
+  //   "[WS CLIENT -> SERVER]",
+  //   `opcode=${frame.opcode}`,
+  //   `len=${frame.length}`,
+  //   `masked=${frame.masked}`,
+  //   `fin=${frame.fin}`,
+  //   summary.slice(0, 220),
+  // );
 };
 
 const logServerToClient = (chunk) => {
   const frame = getWebSocketFrameInfo(chunk);
   const summary = typeof frame.payload === "string" ? frame.payload : JSON.stringify(frame.payload);
 
-  console.log(
-    "[WS SERVER -> CLIENT]",
-    `opcode=${frame.opcode}`,
-    `len=${frame.length}`,
-    `masked=${frame.masked}`,
-    `fin=${frame.fin}`,
-    summary.slice(0, 220),
-  );
+  // console.log(
+  //   "[WS SERVER -> CLIENT]",
+  //   `opcode=${frame.opcode}`,
+  //   `len=${frame.length}`,
+  //   `masked=${frame.masked}`,
+  //   `fin=${frame.fin}`,
+  //   summary.slice(0, 220),
+  // );
 };
 
 proxy.on("proxyReqWs", (proxyReq, req) => {
