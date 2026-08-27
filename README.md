@@ -10,6 +10,8 @@ navigate to https://study.mathvariables.xyz/learn.html to play shell with sfc. T
 ## about
 shim is a copy of shell shockers that proxies all requests (** including websockets not just using an alt link of shell!) and allows for userscript injection. it works on any device, even chromebooks with locked-down extensions and devtools disabled.
 
+(** note: it also has a guard to prevent lightspeed filter agent to immediately navigate to block page because it will be detected as a proxy! click cancel for all the "Leave Site? Changes may not be saved!" dialogs, [ DO NOT CLICK PREVENT THIS SITE FROM ADDING ADDITIONAL DIALOGS AS THIS WILL BLOCK THE PAGE!!! ])
+
 shim functions as a copy of normal shell shockers, but when you visit the `/inject` page, you can inject userscripts that will run on the main game page. shim supports all tampermonkey userscripts to the best of its ability. (** it didnt support all userscript apis)
 
 ## From Flowaway-Goldenbody:
