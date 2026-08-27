@@ -14,7 +14,7 @@ const proxy = createProxyServer({
   ws: true,
   changeOrigin: true,
   secure: true,
-  xfwd: true,
+  xfwd: false,
 });
 
 const WS_OPCODE_NAMES = {
