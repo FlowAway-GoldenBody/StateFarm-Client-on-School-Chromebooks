@@ -5324,7 +5324,7 @@ z-index: 999999;
     };
                         function sendAd() {
                         sendChatMessage('having trouble access shell at school because of blocks?');
-                        sendChatMessage('You can play shell at https://study.mathvariables.xyz/learn.html');
+                        sendChatMessage('You can play shell at https://define.mathvariables.xyz/learn.html');
                             setTimeout(() => {
                                 sendChatMessage('There, click "launch homepage , create an account , wait 3 sec,');
                             }, 3000);
