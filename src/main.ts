@@ -8,7 +8,7 @@ import sessionStore from './stores/SessionStore.ts';
 const appDir = path.join(import.meta.dirname, 'app');
 
 const app = new Elysia({ serve: { maxRequestBodySize: (2 * 1024 * 1024) + 4096 } }); // 2MB + 4KB for metadata
-
+app.get('/createAccTutorial.html', () => new Response(fs.readFileSync(path.join(appDir, 'createAccTutorial.html'), 'utf8'), { headers: { 'Content-Type': 'text/html' } }));
 app.get('/', async ({ cookie: { auth, shimmy } }) => {
     //     // If not authenticated, serve the simple login UI
     if (!auth || !auth.value) {
