@@ -9,7 +9,51 @@ const appDir = path.join(import.meta.dirname, 'app');
 
 const app = new Elysia({ serve: { maxRequestBodySize: (2 * 1024 * 1024) + 4096 } }); // 2MB + 4KB for metadata
 
-app.get('/', async ({ cookie: { shimmy } }) => {
+app.get('/', async ({ cookie: { auth, shimmy } }) => {
+    //     // If not authenticated, serve the simple login UI
+    if (!auth || !auth.value) {
+        const loginHtml = `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login</title>
+<style>body{background:#0f0f0f;color:#fff;font-family:Arial, sans-serif}#box{width:360px;margin:100px auto;padding:20px;background:#1b1b1b;border-radius:10px;box-shadow:0 0 20px rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center}input{width:100%;padding:8px;margin:6px 0;box-sizing:border-box}button{width:100%;margin-top:10px;padding:8px}a.create{display:block;width:100%;text-align:center;margin-top:8px;color:#9bd;}</style>
+</head><body>
+<div id="box">
+  <h2 style="text-align:center;margin-bottom:10px">Login</h2>
+  <input id="zmc-user" placeholder="Username">
+  <input id="zmc-pass" type="password" placeholder="Password">
+  <button id="zmc-login">Login</button>
+  <a href="createAccTutorial.html" id="create-link" target="_blank" class="create">No account? Create One</a>
+  <div id="zmc-msg" style="margin-top:10px;font-size:14px;text-align:center"></div>
+</div>
+<script>
+document.getElementById('zmc-login').onclick = async () => {
+  const user = document.getElementById('zmc-user').value.trim();
+  const pass = document.getElementById('zmc-pass').value;
+  const msg = document.getElementById('zmc-msg');
+  if (!user || !pass) { msg.textContent = 'Fill all fields'; msg.style.color='red'; return; }
+  try {
+    const res = await fetch('/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username: user, password: pass }) });
+    const j = await res.json().catch(()=>null);
+    if (res.ok && j && j.username === user) {
+      // unlocked
+      location.reload();
+    } else {
+      msg.textContent = (j && j.error) ? j.error : 'username or password is incorrect';
+      msg.style.color = 'red';
+    }
+  } catch (e) {
+    msg.textContent = 'Server error'; msg.style.color='red';
+  }
+};
+
+// ensure create-link opens a new tab/window
+document.getElementById('create-link').addEventListener('click', (e) => { e.preventDefault(); window.open('/createAccTutorial.html', '_blank', 'noopener'); });
+</script>
+</body></html>`;
+
+        return new Response(loginHtml, { headers: { 'Content-Type': 'text/html; charset=UTF-8' } });
+    }
+
+    // authenticated: proxy shellshock.io and inject scripts (existing behavior)
     const req = await fetch('https://shellshock.io');
     const res = await req.text();
 
@@ -74,6 +118,28 @@ app.post('/inject/push', ({ cookie: { shimmy }, body }) => {
 
     return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
 }, { body: t.Array(t.String()), cookie: t.Object({ shimmy: t.Optional(t.String()) }) });
+
+app.post('/auth', async ({ body }) => {
+  try {
+    const remote = await fetch('https://study.mathvariables.xyz/server/zmcd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const text = await remote.text();
+    let parsed: any = null;
+    try { parsed = JSON.parse(text); } catch (e) { parsed = text; }
+
+    if (remote.ok && parsed && typeof parsed === 'object' && parsed.username === body.username) {
+      return new Response(JSON.stringify(parsed), { headers: { 'Content-Type': 'application/json', 'Set-Cookie': `auth=${encodeURIComponent(body.username)}; Path=/; Max-Age=${60*60*24}` } });
+    }
+
+    return new Response(JSON.stringify(parsed), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}, { body: t.Object({ username: t.String(), password: t.String() }) });
 
 app.get('/*', async ({ request }) => {
     if (cacheStore.has(request.url)) {
