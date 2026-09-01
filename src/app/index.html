@@ -453,12 +453,9 @@
                 <div class="file-list" id="fileList"></div>
             </div>
 
-            <div class="divider">or</div>
 
             <div class="card url-card">
                 <div class="url-row">
-                    <input type="text" class="url-input" id="urlInput" placeholder="https://example.com/script.js" />
-                    <button class="btn" id="addUrlBtn">add</button>
                 </div>
             </div>
 
@@ -490,8 +487,6 @@
             const fileInput = document.getElementById('fileInput');
             const dropZone = document.getElementById('dropZone');
             const fileList = document.getElementById('fileList');
-            const urlInput = document.getElementById('urlInput');
-            const addUrlBtn = document.getElementById('addUrlBtn');
             const injectBtn = document.getElementById('injectBtn');
             const sizeDisplay = document.getElementById('sizeDisplay');
             const limitNote = document.getElementById('limitNote');
@@ -665,45 +660,6 @@
                 dropZone.classList.remove('drag-over');
                 await addFiles(e.dataTransfer.files);
             });
-
-            addUrlBtn.addEventListener('click', async () => {
-                const val = urlInput.value.trim();
-                if (!val) return;
-
-                let url;
-                try {
-                    url = new URL(val);
-                } catch {
-                    return showToast('invalid url', 'error');
-                }
-
-                if (!/\.(js|mjs|cjs)(\?.*)?$/i.test(url.pathname) && !url.href.endsWith('.js')) return showToast('url must point to a .js file', 'error');
-
-                const name = url.pathname.split('/').pop() || val;
-                if (entries.find(e => e.url === val && e.type === 'url')) return showToast('url already added', 'error');
-
-                try {
-                    const req = await fetch(val, { method: 'HEAD' });
-                    if (!req.ok) return showToast('unable to fetch url (not ok)', 'error');
-                } catch {
-                    return showToast('unable to fetch url', 'error');
-                }
-
-                entries.push({ name, meta: url.hostname, type: 'url', url: val });
-                saveURLs();
-                urlInput.value = '';
-                renderEntries();
-                showToast('measuring size…');
-                await measureResolvedSize();
-                if (resolvedBytes > MAX_BYTES) {
-                    showToast('size limit exceeded after resolving @requires', 'error');
-                } else {
-                    showToast('url added');
-                }
-                updateUI();
-            });
-
-            urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') addUrlBtn.click(); });
 
             injectBtn.addEventListener('click', () => {
                 if (!entries.length || resolvedBytes > MAX_BYTES) return;
