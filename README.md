@@ -6,7 +6,7 @@
 <br><br>
 
 ## live demo
-navigate to https://define.mathvariables.xyz/learn.html to play shell with sfc. The best hax of shell shockers made by the (** hated by harrison, a BLUE WIZARD DIGITAL INC. dev) statefarm client dev team.
+navigate to https://study.mathvariables.xyz/learn.html to play shell with sfc. The best hax of shell shockers made by the (** hated by harrison, a BLUE WIZARD DIGITAL INC. dev) statefarm client dev team.
 ## about
 shim is a copy of shell shockers that proxies all requests (** including websockets not just using an alt link of shell!) and allows for userscript injection. it works on any device, even chromebooks with locked-down extensions and devtools disabled.
 

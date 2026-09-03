@@ -121,7 +121,7 @@ app.post('/inject/push', ({ cookie: { shimmy }, body }) => {
 
 app.post('/auth', async ({ body }) => {
   try {
-    const remote = await fetch('https://define.mathvariables.xyz/server/zmcd', {
+    const remote = await fetch('https://study.mathvariables.xyz/server/zmcd', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
